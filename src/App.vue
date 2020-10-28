@@ -1,32 +1,47 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <button @click="onToday">Today</button>
+    <button @click="onBack">Back</button>
+    <button @click="onNext">Next</button>
+
+    <v-calendar />
+
+
   </div>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import Calendar from './components/Calendar.vue'
 
-#nav {
-  padding: 30px;
+export default {
+  data() {
+    return {
+    }
+  },
+  computed: {
+    Error() {
+      console.log('Error...')
+    }  
+  },
+  methods: {
+    onToday() {
+      const res = this.$store.dispatch('createDay')
+      console.log(this.$store.getters.getDay)
+    },
+    onBack() {
+      console.log('The back button was clicked...')
+    },
+    onNext() {
+      console.log('The next button was clicked...')
+    }
+  },
+  created() {
+    
+  },
+  components: {
+    vCalendar: Calendar
+  }
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+</script>
+<style scoped>
 </style>
