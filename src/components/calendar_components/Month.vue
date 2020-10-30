@@ -4,9 +4,10 @@
     <h2 class="calendar-time">{{dayTime.hours}} : {{dayTime.minutes}} : {{dayTime.seconds}}</h2>
     <table>
       <thead>
-        <th v-for="week in weekDays" :key="week">{{ week }}</th>
+        <th v-for="week in weekDays" :key="week" :class="week">{{ week }}</th>
       </thead>
-      <tbody></tbody>
+      <tbody class="table-body">
+      </tbody>
     </table>
   </div>
 </template>
@@ -28,6 +29,16 @@ export default {
       } else {
         this.dayTime = "Something went wrong...";
       }
+    },
+    renderDays(month, year, numberOfDays) {
+      const tbody = document.querySelector('.table-body')
+      const months = this.$store.getters.getMonths
+      for(let i = 0; i < numberOfDays; i++) {
+        const day = i + 1
+        const dayDate = new Date(year, months.indexOf(month), day).getDay()
+        const daysOfWeek = this.$store.getters.getWeeks[dayDate];
+        console.log(daysOfWeek, day)
+      }
     }
   },
   computed: {
@@ -37,15 +48,17 @@ export default {
   },
   created() {
     const newDate = new Date();
-    console.log(newDate.getDay());
-    console.log(this.$store.getters);
     this.$store.dispatch("createThisDayDate");
     this.date = this.$store.getters.getThisDayDate;
+    console.log(this.date);
 
     setInterval(() => {
       this.$store.dispatch("createThisDayTime");
       this.setDayTime();
     }, 1000);
+  },
+  mounted() {
+    this.renderDays(this.date.month, this.date.year, this.date.dayInMonth)
   }
 };
 </script>
