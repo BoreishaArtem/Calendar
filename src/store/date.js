@@ -26,13 +26,7 @@ export default {
                 year: thisDay.getFullYear(),
                 dayInMonth: new Date(thisDay.getFullYear(), thisDay.getMonth() + 1, 0).getDate()
             }
-            const time = {
-                hours: thisDay.getHours(),
-                minutes: thisDay.getMinutes(),
-                seconds: thisDay.getSeconds()
-            }
             commit('createThisDayDate', date)
-            commit('createThisDayTime', time)
         },
         createThisDayTime({ commit }) {
             const thisDay = new Date()

@@ -1,14 +1,16 @@
 <template>
   <div>
-    <h2 class="calendar-date">{{date.month}} {{date.year}}</h2>
-    <h2 class="calendar-time">{{dayTime.hours}} : {{dayTime.minutes}} : {{dayTime.seconds}}</h2>
-    <table>
-      <thead>
-        <th v-for="week in weekDays" :key="week" :class="week">{{ week }}</th>
-      </thead>
-      <tbody class="table-body">
-      </tbody>
-    </table>
+
+        <h1>Month has been innited</h1>
+        <div class="table">
+          <div class="table-head">
+              <div v-for="dayName in weekDays" :key="dayName" class="table-head-el">{{ dayName }}</div>
+          </div>
+          <div class="table-body">
+            <div v-for="day in daysInMonth" :key="day" class="table-body-el">{{ day }}</div>
+          </div>
+        </div>
+
   </div>
 </template>
 
@@ -16,82 +18,86 @@
 export default {
   data() {
     return {
-      date: null,
-      dayTime: "",
-      monthDays: null
+      
     };
   },
   methods: {
-    setDayTime() {
-      const time = this.$store.getters.getThisDayTime;
-      if (time !== null) {
-        this.dayTime = time;
-      } else {
-        this.dayTime = "Something went wrong...";
-      }
+    setActiveDay() {
+      const tableBodyEls = document.querySelectorAll('.table-body-el')
+      tableBodyEls.forEach(el => {
+        if (el.innerHTML == this.$store.getters.getThisDayDate.day) {
+          el.classList.add('active')
+        }
+      })
     },
-    renderDays(month, year, numberOfDays) {
-      const tbody = document.querySelector('.table-body')
-      const months = this.$store.getters.getMonths
-      for(let i = 0; i < numberOfDays; i++) {
-        const day = i + 1
-        const dayDate = new Date(year, months.indexOf(month), day).getDay()
-        const daysOfWeek = this.$store.getters.getWeeks[dayDate];
-        console.log(daysOfWeek, day)
-      }
+    init() {
+      this.$store.getters.getMonthDays
     }
   },
   computed: {
     weekDays() {
       return this.$store.getters.getWeeks;
+    },
+    daysInMonth() {
+      return this.$store.getters.getThisDayDate.dayInMonth;
+    },
+    arrays() {
+      
+      this.$store.getters.getMonthDays
     }
   },
-  created() {
-    const newDate = new Date();
-    this.$store.dispatch("createThisDayDate");
-    this.date = this.$store.getters.getThisDayDate;
-    console.log(this.date);
-
-    setInterval(() => {
-      this.$store.dispatch("createThisDayTime");
-      this.setDayTime();
-    }, 1000);
-  },
   mounted() {
-    this.renderDays(this.date.month, this.date.year, this.date.dayInMonth)
+    this.setActiveDay()
+    this.init()
+    this.$store.dispatch('getDays', {
+      data: this.$store.getters.getThisDayDate
+    })
+    console.log(this.$store.getters.getMonthDays)
   }
 };
 </script>
 
 <style scoped>
-.calendar-date {
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+h1 {
   text-align: center;
 }
-.calendar-time {
+.table {
+ width: 70%;
+ margin: 0 auto;
+ padding: 50px 0;
+}
+
+.table-head {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f5f6fa;
+}
+
+.table-head-el {
   text-align: center;
+  width: 30%;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 15px 0;
+  color: #9396a5;
+  font-size: 11px;
 }
-table {
-  border: 1px solid black;
+.table-body {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 1px auto;
+}
+.table-body-el {
+  width: 9.28%;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #eaf0f4;
 }
 
-thead {
-  border: 1px solid black;
-}
-tbody {
-  border: 1px solid black;
+.table-body-el.active {
+  background-color: #f5f6fa;
 }
 
-tr {
-  border: 1px solid black;
-}
-
-td {
-  border: 1px solid black;
-}
-th {
-  border: 2px solid black;
-  font-size: 18px;
-  font-weight: 400;
-  color: #000;
-}
 </style>
