@@ -1,41 +1,66 @@
 export default {
     state: {
-        monthsDayArr: ''
+        month: null,
+        daysInMonth: null,
+        year: null
     },
     mutations: {
-        setDays(state, payload) {
-            state.monthsDayArr = payload
+        setUpMonth(state, payload) {
+            state.month = payload.month,
+                state.year = payload.year,
+                state.daysInMonth = payload.daysInMonth
+        },
+        onToday(state, payload) {
+            state.month = payload.month + 1,
+                state.year = payload.year,
+                state.daysInMonth = payload.daysInMonth
+        },
+        onPrev(state) {
+            if (state.month !== 1) {
+                state.month -= 1
+                state.daysInMonth = new Date(state.year, state.month, 0).getDate()
+            } else {
+                state.month = 12
+                state.year -= 1
+                state.daysInMonth = new Date(state.year, state.month, 0).getDate()
+            }
+        },
+        onNext(state) {
+            if (state.month === 12) {
+                state.month = 1
+                state.year += 1
+                state.daysInMonth = new Date(state.year, state.month, 0).getDate()
+            } else {
+                state.month += 1
+                state.daysInMonth = new Date(state.year, state.month, 0).getDate()
+            }
         }
     },
     actions: {
-        getDays({ commit }, payload) {
-            const days = payload.data.dayInMonth;
-            let newArr = []
-            for(let i = 1; i <= days; i++) {
-                if (i % 7 === 0) {
-                    for(let k = i; k <= i; k++) {
-                        newArr.push(k)
-                    }
-                }
-            }
-            const newArrpush = (days - newArr[newArr.length - 1]) + newArr[newArr.length - 1]
-            newArr.push(newArrpush)
-            const currentArr = []
-            newArr.forEach(numberOfDays => {
-                currentArr.push(new Array())
-                currentArr.forEach(el => {
-                    for(let i = (numberOfDays + 1) - 7; i <= numberOfDays; i++) {
-                        el.push(i)
-                    }
-                })
+        onToday({ commit }) {
+            const month = new Date().getMonth()
+            const year = new Date().getFullYear()
+            const daysInMonth = new Date(year, month + 1, 0).getDate()
+            commit('onToday', {
+                month,
+                year,
+                daysInMonth
             })
-            console.log(currentArr, "THE CURRENT ARR")
-            commit('setDays', currentArr)
+        },
+        onPrev({ commit }) {
+            commit('onPrev')
+        },
+        onNext({ commit }) {
+            commit('onNext')
         }
     },
     getters: {
-        getMonthDays(state) {
-            return state.monthsDayArr
+        getMonthDate(state) {
+            return {
+                month: state.month,
+                year: state.year,
+                daysInMonth: state.daysInMonth
+            }
         }
     }
 }
