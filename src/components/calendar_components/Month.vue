@@ -1,130 +1,174 @@
 <template>
   <div>
-    <h1>Month has been innited {{ month }}</h1>
-    <h1>{{ year }}</h1>
-    <h1>{{ daysInMonth }}</h1>
-    <!-- <div class="calendar">
-      <div class="calendar-head">
-        <div
-          v-for="(dayName, index) in weekDays"
-          :key="index"
-          class="calendar-head-el"
-          :id="index"
-        >{{ dayName }}</div>
+    <h1>{{ dateNames.monthNames[monthData.month] }} {{ getYear }}</h1>
+
+    <div class="container">
+      <div class="calendar">
+        <div class="week-days">
+          <div
+            class="week-day"
+            v-for="(weekName, index) in dateNames.weekNames"
+            :key="'g' + index"
+          >{{ weekName }}</div>
+        </div>
+        <div class="month-days">
+          <div v-for="(prevDay, index) in prevDays" :key="'b' + index" class="prevDay">
+            <span class="month-days-number">{{ prevDay }}</span>
+          </div>
+          <div
+            v-for="(curDay, index) in curDays"
+            :key="'a' + index"
+            :class="{ curentDay : (curDay === today && monthData.month === new Date().getMonth()) }"
+          >
+            <span class="month-days-number">{{ curDay }}</span>
+          </div>
+          <div v-for="(nextDay, index) in nextDays" :key="'c' + index" class="nextDay">
+            <span class="month-days-number">{{ nextDay }}</span>
+          </div>
+        </div>
       </div>
-    </div>-->
+    </div>
   </div>
 </template>
+
 
 <script>
 export default {
   data() {
     return {
-      month: "",
-      daysInMonth: "",
-      year: ""
+      prevDays: [],
+      curDays: [],
+      nextDays: [],
+      today: new Date().getDate()
     };
   },
   methods: {
-    // setActiveDay() {
-    //   const tableBodyEls = document.querySelectorAll(".calendar-body-el");
-    //   tableBodyEls.forEach(el => {
-    //     if (+el.innerHTML === this.$store.getters.getThisDayDate.day) {
-    //       el.style.color = "#badc58";
-    //     }
-    //     if (+el.id === 0 || +el.id === 6) {
-    //       el.style.color = "#ff7979";
-    //     }
-    //   });
-    // },
-    render(thisMonthDays, year, month) {
-      const monthDate = this.$store.getters.getMonthDate;
-      this.year = monthDate.year;
-      this.month = monthDate.month;
-      this.daysInMonth = monthDate.daysInMonth;
-
-      const currMonthDays = this.daysInMonth;
-      const prevMonthDays = new Date(this.year, this.month - 1, 0).getDate();
-      const nextMonthDays = new Date(this.year, this.month + 1, 0).getDate();
-      const weekDays = this.weekDays(
-        currMonthDays,
-        prevMonthDays,
-        nextMonthDays
-      );
-      // console.log(weekDays);
-
-      // for (let i = 1; i <= this.daysInMonth; i++) {
-      // console.log(i);
-      //   const domEl = document.getElementById(new Date(2020, 10, i).getDay());
-      //   const div = document.createElement("div");
-      //   div.classList.add("calendar-body-el");
-      //   div.id = new Date(2020, 10, i).getDay();
-      //   div.innerHTML = i;
-      //   // domEl.appendChild(div);
-      // }
-    },
-    weekDays(currMonth, prevMonth, nextMonth) {
-      // console.log(currMonth, "Current");
-      // console.log(prevMonth, "Prev");
-      // console.log(nextMonth, "Next");
-
-      for (let i = 1; i <= currMonth; i++) {
-        const currMonthWeekDays = new Date(this.year, this.month, i).getDay();
-        console.log(currMonthWeekDays);
+    prevMonthDays() {
+      let days = [];
+      const prevMonthLastDay = this.monthData.prevMonthLastDay;
+      const curMonthFirstDay = this.monthData.monthFirstDayIndex;
+      for (let i = curMonthFirstDay; i > 0; i--) {
+        days.push(prevMonthLastDay - i + 1);
       }
-      // return currMonth + "Hello";
+      this.prevDays = days;
+    },
+    renderDays() {
+      let day = [];
+      const days = this.monthData.daysInMonth;
+      for (let i = 1; i <= days; i++) {
+        day.push(i);
+      }
+      this.curDays = day;
+    },
+    nextMonthDays() {
+      let days = [];
+      const month = this.monthData.month + 1;
+      const year = this.$store.getters.getYear;
+      const monthLastDay = this.monthData.monthLastDayIndex;
+      for (let i = 1; i <= 6 - monthLastDay; i++) {
+        days.push(i);
+      }
+      this.nextDays = days;
+    },
+    onRender() {
+      this.prevMonthDays();
+      this.renderDays();
+      this.nextMonthDays();
     }
   },
-  computed: {},
+  computed: {
+    getYear() {
+      return this.$store.getters.getYear;
+    },
+    monthData() {
+      return this.$store.getters.getMonth;
+    },
+    dateNames() {
+      return this.$store.getters.getDateNames;
+    }
+  },
   mounted() {
-    // this.setActiveDay();
     this.$store.dispatch("onToday");
-    this.render();
+    this.onRender();
+  },
+  beforeUpdate() {
+    this.onRender();
   }
 };
 </script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Roboto" sans-serif;
+}
+
+html {
+  font-size: 62.5%;
+}
+
 h1 {
   text-align: center;
 }
-.calendar {
-  width: 70%;
-  margin: 0 auto;
-  padding: 50px 0;
-}
 
-.calendar-head {
+.container {
+  width: 100%;
   display: flex;
-  justify-content: space-between;
-  background-color: #f5f6fa;
+  justify-content: center;
+  align-items: center;
 }
 
-.calendar-head-el {
-  text-align: center;
-  width: 30%;
-  text-transform: uppercase;
-  font-weight: 700;
-  padding: 15px 0;
-  color: #9396a5;
-  font-size: 16px;
-  background-color: #ffffff;
+.calendar {
+  margin-top: 50px;
+  width: 100%;
+  height: 100%;
 }
-.calendar-body {
+
+.curentDay {
+  background-color: #f8f8f8;
+}
+.week-days {
+  width: 100%;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  color: #a3a6b4;
+  background-color: #f5f6fa;
+  border-bottom: 1px solid #eaf0f4;
+  border-top: 1px solid #eaf0f4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+.week-day {
+  width: calc(100% / 7);
+}
+.month-days {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
-  width: 100%;
-  margin: 1px auto;
-}
-.calendar-body-el {
-  width: 9.28%;
+  align-items: center;
   text-align: center;
-  padding: 20px;
+}
+.month-days div {
+  font-size: 0.9rem;
+  width: calc(100% / 7);
+  min-height: 9rem;
+  padding: 10px 10px;
+  text-align: right;
   border: 1px solid #eaf0f4;
 }
+.month-days div:hover {
+  background-color: #f8f8f8;
+}
 
-.calendar-body-el.active {
-  color: red;
+.prevDay {
+  color: rgba(67, 66, 93, 0.3);
+}
+.nextDay {
+  color: rgba(67, 66, 93, 0.3);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="overflow">
     <v-calendar />
   </div>
 </template>
@@ -16,5 +16,12 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style>
+*,
+::before,
+::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 </style>

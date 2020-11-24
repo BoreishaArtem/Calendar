@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" :class="{ show : 'dark' }">
     <div class="calendar-btns">
       <div class="btns btns-left-side">
         <button @click="onToday" class="btn">Today</button>
@@ -16,14 +16,14 @@
       </div>
     </div>
 
-    <div class="calendar">
+    <div class="calendar" @click="showModal">
       <div class="calendar-clock">
-        <h2 class="calendar-date">{{date.year}} {{date.month}}</h2>
         <h2 class="calendar-time">{{dayTime.hours}} : {{dayTime.minutes}} : {{dayTime.seconds}}</h2>
       </div>
       <v-cur-date v-if="showDay" />
       <v-week v-if="showWeek" />
-      <v-month v-if="showMonth" ref="onRender" />
+      <v-month v-if="showMonth" />
+      <v-modal v-if="modal" />
     </div>
   </div>
 </template>
@@ -32,6 +32,7 @@
 import CurrentDate from "./calendar_components/Day.vue";
 import Week from "./calendar_components/Week.vue";
 import Month from "./calendar_components/Month.vue";
+import Modal from "./shared/Modal";
 
 export default {
   name: "Calendar",
@@ -40,37 +41,40 @@ export default {
       showMonth: false,
       showDay: false,
       showWeek: false,
-      date: "",
       dayTime: ""
     };
   },
   components: {
     vCurDate: CurrentDate,
     vWeek: Week,
-    vMonth: Month
-  },
-  computed: {
-    Error() {
-      console.log("Error...");
-    }
+    vMonth: Month,
+    vModal: Modal
   },
   methods: {
     onToday() {
       this.$store.dispatch("onToday");
-      this.$refs.onRender.render();
     },
     onBack() {
-      console.log("The back button was clicked...");
       this.$store.dispatch("onPrev");
-      this.$refs.onRender.render();
     },
     onNext() {
-      console.log("The next button was clicked...");
       this.$store.dispatch("onNext");
-      this.$refs.onRender.render();
     },
     init() {
       this.showMonth = true;
+    },
+    showModal(event) {
+      const target = event.target.firstChild;
+      if (target.classList[0] === "month-days-number") {
+        console.log("yes", target.innerHTML);
+        this.$store.dispatch("showModal");
+        console.log(this.$store.getters);
+      } else {
+        return 0;
+      }
+    },
+    closeModal(event) {
+      console.log(event)
     },
     setDayTime() {
       const time = this.$store.getters.getThisDayTime;
@@ -90,10 +94,18 @@ export default {
       }
     }
   },
+  computed: {
+    modal() {
+      return this.$store.getters.modal;
+    },
+    show() {
+      if (!this.$store.modal) {
+        return false;
+      }
+      return true;
+    }
+  },
   mounted() {
-    // this.$store.dispatch("setUpMonth");
-    // this.date = this.$store.getters.getThisDayDate;
-
     setInterval(() => {
       this.$store.dispatch("createThisDayTime");
       this.setDayTime();
@@ -103,7 +115,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap");
 *,
 *::after,
@@ -122,8 +134,12 @@ export default {
   color: #000;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+  position: relative;
+  z-index: 999;
 }
-
+.dark {
+  background: dark;
+}
 .calendar-btns {
   display: flex;
   justify-content: space-between;
@@ -156,5 +172,6 @@ button:last-child {
 
 button:hover {
   color: #3b86ff;
+  /* color: #ffff;s */
 }
 </style>
